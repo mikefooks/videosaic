@@ -1,17 +1,9 @@
 #include "analyze.h"
 #include "opencv2/opencv.hpp"
 #include <string>
+#include <cstdlib>
+#include <ctime>
 
-
-VideoSlice::VideoSlice (std::vector<cv::Mat>& cap, cv::Rect& roi)
-{
-  for (auto frame: cap) {
-    cv::Mat cropped (frame, roi);
-    frames_.push_back(cropped);
-  }
-}
-
-VideoSlice::~VideoSlice () {}
 
 TileVideo::TileVideo (long xSlices=40, long ySlices=40)
 {
@@ -47,7 +39,7 @@ void TileVideo::acquire (const std::string filename)
   return;
 }
 
-long TileVideo::slice ()
+void TileVideo::slice ()
 {
   long sliceWidth = dimensions_[0] / slices_[0];
   long sliceHeight = dimensions_[1] / slices_[1];
@@ -55,12 +47,34 @@ long TileVideo::slice ()
   for (int x = 0; x < slices_[0]; x++) {
     for (int y = 0; y < slices_[1]; y++) {
       cv::Rect roi (x, y, sliceWidth, sliceHeight);
-      VideoSlice v_slice (capFrames_, roi);
-      slicedFrames_.push_back(v_slice);
+      std::vector<cv::Mat> vSlice;
+      
+      for (auto frame: capFrames_) {
+	cv::Mat cropped (frame, roi);
+	vSlice.push_back(cropped);
+      }
+
+      slicedFrames_.push_back(vSlice);
     }
   }
+}
 
-  return slicedFrames_.size();
+void TileVideo::alterFrames ()
+{
+  std::srand(time(NULL));
+
+  for (auto slice: slicedFrames_) {
+    std::vector<cv::Mat> altered = slice;
+    
+    std::cout << altered.size() << std::endl;
+
+    for (int i = std::rand() % frameCount(); i < frameCount(); i++) {
+      altered.emplace(altered.begin(), altered.back());
+      altered.pop_back();
+    }
+
+    alteredFrames_.push_back(altered);
+  }   
 }
 
 long TileVideo::frameCount () const
