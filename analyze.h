@@ -1,9 +1,11 @@
-#ifndef ANALYZE_H
-#define ANALYZE_H
-
 #include <vector>
 #include <string>
+#include <map>
+#include "map.h"
 #include "opencv2/opencv.hpp"
+
+#ifndef ANALYZE_H
+#define ANALYZE_H
 
 typedef std::vector<std::vector<cv::Mat>> VideoSliceCollection;
 
@@ -17,7 +19,9 @@ class TileVideo {
   long frameCount () const;
   std::string slices () const;
   std::string dimensions() const;
+  //  void writeOut (const std::string) const;
  private:
+  LocationMatrix locMat_;
   std::vector<cv::Mat> capFrames_;
   VideoSliceCollection slicedFrames_;
   VideoSliceCollection alteredFrames_;
@@ -26,4 +30,3 @@ class TileVideo {
 };
 
 #endif
-  

@@ -1,6 +1,9 @@
 #include "analyze.h"
+#include "map.h"
 #include "opencv2/opencv.hpp"
 #include <string>
+#include <vector>
+#include <map>
 #include <cstdlib>
 #include <ctime>
 
@@ -36,6 +39,11 @@ void TileVideo::acquire (const std::string filename)
   dimensions_[0] = cap.get(cv::CAP_PROP_FRAME_WIDTH);
   dimensions_[1] = cap.get(cv::CAP_PROP_FRAME_HEIGHT);
 
+  locMat_ = LocationMatrix(slices_[0],
+			   slices_[1],
+			   dimensions_[0],
+			   dimensions_[1]);
+
   return;
 }
 
@@ -65,8 +73,6 @@ void TileVideo::alterFrames ()
 
   for (auto slice: slicedFrames_) {
     std::vector<cv::Mat> altered = slice;
-    
-    std::cout << altered.size() << std::endl;
 
     for (int i = std::rand() % frameCount(); i < frameCount(); i++) {
       altered.emplace(altered.begin(), altered.back());
@@ -98,3 +104,11 @@ std::string TileVideo::dimensions () const
   return output;
 }
 
+/*
+void TileVideo::writeOut (const std::string fileName) const
+{
+  cv::VideoWriter writer;
+  cv::Size size (dimensions_[0], dimensions_[1]);
+  writer.open(fileName, CV_FOURCC("X", "2", "6", "4"), 30, size);
+}
+*/
