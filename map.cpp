@@ -33,15 +33,23 @@ LocationMatrix::LocationMatrix (unsigned numX,
 
 LocationMatrix::~LocationMatrix () {}
 
+std::array<unsigned, 2> LocationMatrix::getLocById (unsigned i,
+						     unsigned j) const
+{
+  std::array<unsigned, 2> idx { i, j };
+  return matrix_.at(idx);
+}
+
 std::ostream& operator<< (std::ostream& os, const LocationMatrix& locMat)
 {
   for (unsigned i = 0; i < locMat.numX_; i++) {
     for (unsigned j = 0; j < locMat.numY_; j++) {
-      std::array<unsigned, 2> idx = { i, j };
-      std::cout << locMat.matrix_.at(idx)[0] << ", "
-		<< locMat.matrix_.at(idx)[1] << "\n";
+      std::array<unsigned, 2> loc = locMat.getLocById(i, j);
+      std::cout << loc[0] << ", " << loc[1] << "\n";
     }
   }
+
+  std::cout << std::endl;
 
   return os;
 }

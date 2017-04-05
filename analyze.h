@@ -19,7 +19,9 @@ class TileVideo {
   long frameCount () const;
   std::string slices () const;
   std::string dimensions() const;
-  //  void writeOut (const std::string) const;
+  // void printDebugInfo () const;
+  void printLocMatrix () const;
+  void writeOut (const std::string) const;
  private:
   LocationMatrix locMat_;
   std::vector<cv::Mat> capFrames_;

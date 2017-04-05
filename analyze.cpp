@@ -36,8 +36,8 @@ void TileVideo::acquire (const std::string filename)
     cv::waitKey(1);
   }
 
-  dimensions_[0] = cap.get(cv::CAP_PROP_FRAME_WIDTH);
-  dimensions_[1] = cap.get(cv::CAP_PROP_FRAME_HEIGHT);
+  dimensions_[0] = cap.get(CV_CAP_PROP_FRAME_WIDTH);
+  dimensions_[1] = cap.get(CV_CAP_PROP_FRAME_HEIGHT);
 
   locMat_ = LocationMatrix(slices_[0],
 			   slices_[1],
@@ -105,10 +105,41 @@ std::string TileVideo::dimensions () const
 }
 
 /*
+void TileVideo::printDebugInfo () const
+{
+  for (unsigned i; i < slices_[0]; i++) {
+    for (unsigned j; j < slices_[1]; j++) {
+      
+    }
+  }
+  std::cout << std::endl;
+}
+*/
+
+
+void TileVideo::printLocMatrix () const
+{
+  std::cout << locMat_;
+}
+
 void TileVideo::writeOut (const std::string fileName) const
 {
   cv::VideoWriter writer;
   cv::Size size (dimensions_[0], dimensions_[1]);
-  writer.open(fileName, CV_FOURCC("X", "2", "6", "4"), 30, size);
+  writer.open(fileName, CV_FOURCC('H', '2', '6', '4'), 30, size);
+
+  for (unsigned f = 0; f < frameCount(); f++) {
+    for (unsigned i = 0; i < slices_[0]; i++) {
+      for (unsigned j = 0; j < slices_[1]; j++) {
+	std::array<unsigned, 2> loc = locMat_.getLocById(i, j);
+	
+	cv::Mat frame (1280, 720, CV_8U);
+	cv::Rect roi (loc[0], loc[1], 32, 18);
+
+	std::cout << loc[0] << ", " << loc[1] << "\n";
+      }
+      std::cout << std::endl;
+    }
+  }		    
 }
-*/
+

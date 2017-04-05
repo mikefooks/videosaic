@@ -11,6 +11,7 @@ class LocationMatrix
   LocationMatrix ();
   LocationMatrix (unsigned, unsigned, unsigned, unsigned);
   ~LocationMatrix ();
+  std::array<unsigned, 2> getLocById (unsigned, unsigned) const;
   friend std::ostream& operator<< (std::ostream&, const LocationMatrix&);
  private:
   std::map<std::array<unsigned, 2>, std::array<unsigned, 2>> matrix_;
