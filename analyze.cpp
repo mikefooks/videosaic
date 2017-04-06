@@ -54,7 +54,7 @@ void TileVideo::slice ()
 
   for (int x = 0; x < slices_[0]; x++) {
     for (int y = 0; y < slices_[1]; y++) {
-      cv::Rect roi (x, y, sliceWidth, sliceHeight);
+      cv::Rect roi (x * 32, y * 18, sliceWidth, sliceHeight);
       std::vector<cv::Mat> vSlice;
       
       for (auto frame: capFrames_) {
@@ -104,18 +104,22 @@ std::string TileVideo::dimensions () const
   return output;
 }
 
-/*
+
 void TileVideo::printDebugInfo () const
 {
-  for (unsigned i; i < slices_[0]; i++) {
-    for (unsigned j; j < slices_[1]; j++) {
-      
+  for (unsigned i = 0; i < slices_[0]; i ++) {
+    for (unsigned j = 0; j < slices_[1]; j++) {
+      std::array<unsigned, 2> loc = locMat_.getLocById(i, j);
+      if (loc[0] + 32 > 1280) {
+	std::cout << "too wide at i value " << i << "\n";
+      }
+
+      if (loc[1] + 18 > 720) {
+	std::cout << "too tall at j value " << j << "\n";
+      }
     }
   }
-  std::cout << std::endl;
 }
-*/
-
 
 void TileVideo::printLocMatrix () const
 {
@@ -126,20 +130,24 @@ void TileVideo::writeOut (const std::string fileName) const
 {
   cv::VideoWriter writer;
   cv::Size size (dimensions_[0], dimensions_[1]);
-  writer.open(fileName, CV_FOURCC('H', '2', '6', '4'), 30, size);
+  writer.open(fileName, CV_FOURCC('M', 'J', 'P', 'G'), 30, size);
 
   for (unsigned f = 0; f < frameCount(); f++) {
+    cv::Mat frame (size, CV_8UC3);
+    
     for (unsigned i = 0; i < slices_[0]; i++) {
       for (unsigned j = 0; j < slices_[1]; j++) {
 	std::array<unsigned, 2> loc = locMat_.getLocById(i, j);
-	
-	cv::Mat frame (1280, 720, CV_8U);
 	cv::Rect roi (loc[0], loc[1], 32, 18);
 
-	std::cout << loc[0] << ", " << loc[1] << "\n";
+	alteredFrames_[i*slices_[0] + j][f].copyTo(frame(roi));
       }
-      std::cout << std::endl;
     }
-  }		    
+
+    writer << frame;
+    cv::waitKey(1);
+  }
+
+  writer.release();
 }
 

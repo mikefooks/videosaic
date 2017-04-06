@@ -19,7 +19,7 @@ class TileVideo {
   long frameCount () const;
   std::string slices () const;
   std::string dimensions() const;
-  // void printDebugInfo () const;
+  void printDebugInfo () const;
   void printLocMatrix () const;
   void writeOut (const std::string) const;
  private:
