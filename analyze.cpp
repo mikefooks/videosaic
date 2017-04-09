@@ -6,9 +6,10 @@
 #include <map>
 #include <cstdlib>
 #include <ctime>
+#include <cmath>
 
 
-TileVideo::TileVideo (long xSlices=40, long ySlices=40)
+TileVideo::TileVideo (long xSlices, long ySlices)
 {
   slices_[0] = xSlices;
   slices_[1] = ySlices;
@@ -54,7 +55,7 @@ void TileVideo::slice ()
 
   for (int x = 0; x < slices_[0]; x++) {
     for (int y = 0; y < slices_[1]; y++) {
-      cv::Rect roi (x * 32, y * 18, sliceWidth, sliceHeight);
+      cv::Rect roi (x*sliceWidth, y*sliceHeight, sliceWidth, sliceHeight);
       std::vector<cv::Mat> vSlice;
       
       for (auto frame: capFrames_) {
@@ -66,6 +67,7 @@ void TileVideo::slice ()
     }
   }
 }
+
 
 void TileVideo::alterFrames ()
 {
@@ -110,13 +112,7 @@ void TileVideo::printDebugInfo () const
   for (unsigned i = 0; i < slices_[0]; i ++) {
     for (unsigned j = 0; j < slices_[1]; j++) {
       std::array<unsigned, 2> loc = locMat_.getLocById(i, j);
-      if (loc[0] + 32 > 1280) {
-	std::cout << "too wide at i value " << i << "\n";
-      }
-
-      if (loc[1] + 18 > 720) {
-	std::cout << "too tall at j value " << j << "\n";
-      }
+      std::cout << loc[0] << ", " << loc[1] << "\n";
     }
   }
 }
@@ -129,6 +125,8 @@ void TileVideo::printLocMatrix () const
 void TileVideo::writeOut (const std::string fileName) const
 {
   cv::VideoWriter writer;
+  int sliceWidth = dimensions_[0] / slices_[0];
+  int sliceHeight = dimensions_[1] / slices_[1];
   cv::Size size (dimensions_[0], dimensions_[1]);
   writer.open(fileName, CV_FOURCC('M', 'J', 'P', 'G'), 30, size);
 
@@ -136,11 +134,11 @@ void TileVideo::writeOut (const std::string fileName) const
     cv::Mat frame (size, CV_8UC3);
     
     for (unsigned i = 0; i < slices_[0]; i++) {
-      for (unsigned j = 0; j < slices_[1]; j++) {
+      for (unsigned j = 0; j < slices_[1]; j++) {	
 	std::array<unsigned, 2> loc = locMat_.getLocById(i, j);
-	cv::Rect roi (loc[0], loc[1], 32, 18);
+	cv::Rect roi (loc[0], loc[1], sliceWidth, sliceHeight);
 
-	alteredFrames_[i*slices_[0] + j][f].copyTo(frame(roi));
+	alteredFrames_[i*slices_[1] + j][f].copyTo(frame(roi));
       }
     }
 
@@ -150,4 +148,3 @@ void TileVideo::writeOut (const std::string fileName) const
 
   writer.release();
 }
-
