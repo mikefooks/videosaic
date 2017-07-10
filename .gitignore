@@ -1,1 +1,7 @@
-analyze.cpp~ analyze.h~ main.cpp~
+analyze.cpp~ 
+analyze.h~ 
+main.cpp~
+map.h~
+map.cpp~
+*.avi
+*.mp4
